@@ -126,6 +126,7 @@ class GAN_model(BaseModel):
                     rnd_idx = list(range(self.latents[0].shape[0]))
                 self.rnd_idx.append(rnd_idx)
                 dst_offsets_repr = [self.offset_repr[dst][p][rnd_idx] for p in range(self.args.num_layers + 1)]
+                # auto_encoder包含decoder 只是名字叫auto_encoder
                 fake_res = self.models[dst].auto_encoder.dec(self.latents[src], dst_offsets_repr)
                 fake_latent = self.models[dst].auto_encoder.enc(fake_res, dst_offsets_repr)
 
@@ -271,7 +272,7 @@ class GAN_model(BaseModel):
 
     def load(self, epoch=None):
         for i, model in enumerate(self.models):
-            model.load(os.path.join(self.model_save_dir, 'topology{}'.format(i)), epoch)
+            model.load(os.path.join(self.model_save_dir, 'topology{}'.format(i + 2)), epoch)
 
         if self.is_train:
             for i, optimizer in enumerate(self.optimizers):

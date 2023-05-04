@@ -1,6 +1,7 @@
 import sys
 import torch
 sys.path.append("../utils")
+sys.path.append("/home/wyc/deep-motion-editing/retargeting")
 import BVH_mod as BVH
 import numpy as np
 from Quaternions import Quaternions
@@ -26,8 +27,22 @@ corps_name_three_arms = ['Three_Arms_Hips', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 
 corps_name_three_arms_split = ['Three_Arms_split_Hips', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'Spine', 'Spine1', 'Neck', 'Head', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'LeftHand_split', 'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand', 'RightHand_split']
 corps_name_Prisoner = ['HipsPrisoner', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase', 'LeftToe_End', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'RightToe_End', 'Spine', 'Spine1', 'Spine2', 'Neck', 'Head', 'HeadTop_End', 'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightShoulder', 'RightArm', 'RightForeArm']
 corps_name_mixamo2_m = ['Hips', 'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase', 'LeftToe_End', 'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 'RightToe_End', 'Spine', 'Spine1', 'Spine1_split', 'Spine2', 'Neck', 'Head', 'HeadTop_End', 'LeftShoulder', 'LeftShoulder_split', 'LeftArm', 'LeftForeArm', 'LeftHand', 'RightShoulder', 'RightShoulder_split', 'RightArm', 'RightForeArm', 'RightHand']
+
 # corps_name_example = ['Root', 'LeftUpLeg', ..., 'LeftToe', 'RightUpLeg', ..., 'RightToe', 'Spine', ..., 'Head', 'LeftShoulder', ..., 'LeftHand', 'RightShoulder', ..., 'RightHand']
 
+# yc
+corps_name_qingtong = ['Hips', 
+                       'LeftUpLeg', 'LeftLeg', 'LeftFoot', 'LeftToeBase', 
+                       'RightUpLeg', 'RightLeg', 'RightFoot', 'RightToeBase', 
+                       'Spine', 'Spine1', 'Spine2', 'Spine3', 'Neck', 'Head', 
+                       'LeftShoulder', 'LeftArm', 'LeftForeArm', 'LeftHand', 
+                       'RightShoulder', 'RightArm', 'RightForeArm', 'RightHand']
+corps_name_metahuman = ['pelvis',
+                        'thigh_l', 'calf_l', 'foot_l',
+                        'thigh_r', 'calf_r', 'foot_r',
+                        'spine_01', 'spine_02', 'spine_03', 'spine_04', 'spine_05', 'neck_01', 'neck_02', 'head',
+                        'clavicle_l', 'upperarm_l', 'lowerarm_l', 'hand_l',
+                        'clavicle_r', 'upperarm_r', 'lowerarm_r', 'hand_r']
 """
 2.
 Specify five end effectors' name.
@@ -41,7 +56,11 @@ ee_name_monkey = ['LeftToeBase', 'RightToeBase', 'Head', 'LeftHand', 'RightHand'
 ee_name_three_arms_split = ['LeftToeBase', 'RightToeBase', 'Head', 'LeftHand_split', 'RightHand_split']
 ee_name_Prisoner = ['LeftToe_End', 'RightToe_End', 'HeadTop_End', 'LeftHand', 'RightForeArm']
 # ee_name_example = ['LeftToe', 'RightToe', 'Head', 'LeftHand', 'RightHand']
-
+# yc
+ee_name_qingtong = ['LeftToeBase', 'RightToeBase', 'Head', 
+                    'LeftHand',
+                    'RightHand']
+ee_name_metahuman = ['foot_l', 'foot_r', 'head', 'hand_l', 'hand_r']
 
 
 corps_names = [corps_name_1, corps_name_2, corps_name_3, corps_name_cmu, corps_name_monkey, corps_name_boss,
@@ -52,14 +71,20 @@ ee_names = [ee_name_1, ee_name_2, ee_name_3, ee_name_cmu, ee_name_monkey, ee_nam
 Add previously added corps_name and ee_name at the end of the two above lists.
 """
 # corps_names.append(corps_name_example)
+corps_names.append(corps_name_qingtong)
+corps_names.append(corps_name_metahuman)
 # ee_names.append(ee_name_example)
-
+ee_names.append(ee_name_qingtong)
+ee_names.append(ee_name_metahuman)
 
 class BVH_file:
     def __init__(self, file_path=None, args=None, dataset=None, new_root=None):
         if file_path is None:
             file_path = get_std_bvh(dataset=dataset)
-        self.anim, self._names, self.frametime = BVH.load(file_path)
+        try:
+            self.anim, self._names, self.frametime = BVH.load(file_path)
+        except:
+            print(file_path)
         if new_root is not None:
             self.set_new_root(new_root)
         self.skeleton_type = -1
@@ -117,7 +142,11 @@ class BVH_file:
         """
         # if ...:
         #     self.skeleton_type = 11
-
+        # yc
+        if 'Spine3' in self._names:
+            self.skeleton_type = 11
+        if 'spine_05' in self._names:
+            self.skeleton_type = 12
         if self.skeleton_type == -1:
             print(self._names)
             raise Exception('Unknown skeleton')

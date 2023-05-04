@@ -7,13 +7,16 @@ def get_character_names(args):
                       ['Malcolm_m', 'Remy_m', 'Maria_m', 'Jasper_m', 'Knight_m',
                        'Liam_m', 'ParasiteLStarkie_m', 'Pearl_m', 'Michelle_m', 'LolaB_m',
                        'Pumpkinhulk_m', 'Ortiz_m', 'Paladin_m', 'James_m', 'Joe_m',
-                       'Olivia_m', 'Yaku_m', 'Timmy_m', 'Racer_m', 'Abe_m']]
+                       'Olivia_m', 'Yaku_m', 'Timmy_m', 'Racer_m', 'Abe_m'],
+                       ["qingtong"],
+                       ['metahuman']]
 
     else:
         """
         To run evaluation successfully, number of characters in both groups must be the same. Repeat is okay.
         """
-        characters = [['BigVegas', 'BigVegas', 'BigVegas', 'BigVegas'],  ['Mousey_m', 'Goblin_m', 'Mremireh_m', 'Vampire_m']]
+        # characters = [['BigVegas', 'BigVegas', 'BigVegas', 'BigVegas'],  ['Mousey_m', 'Goblin_m', 'Mremireh_m', 'Vampire_m']]
+        characters = [['qingtong', 'qingtong'], ['metahuman', 'qingtong']]
         tmp = characters[1][args.eval_seq]
         characters[1][args.eval_seq] = characters[1][0]
         characters[1][0] = tmp

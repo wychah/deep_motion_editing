@@ -10,7 +10,8 @@ import Animation
 
 def full_batch(suffix, prefix):
     res = []
-    chars = ['Mousey_m', 'Goblin_m', 'Mremireh_m', 'Vampire_m']
+    # chars = ['Mousey_m', 'Goblin_m', 'Mremireh_m', 'Vampire_m']
+    chars = ['qingtong', 'metahuman']
     for char in chars:
         res.append(batch(char, suffix, prefix))
     return res

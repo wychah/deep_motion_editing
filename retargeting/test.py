@@ -21,10 +21,11 @@ def batch_copy(source_path, suffix, dest_path, dest_suffix=None):
 
 
 if __name__ == '__main__':
-    test_characters = ['Mousey_m', 'Goblin_m', 'Mremireh_m', 'Vampire_m']
-
+    # test_characters = ['Mousey_m', 'Goblin_m', 'Mremireh_m', 'Vampire_m']
+    # test_characters = ['qingtong', 'metahuman']
+    test_characters = ['qingtong', 'metahuman']
     parser = argparse.ArgumentParser()
-    parser.add_argument('--save_dir', type=str, default='./pretrained/')
+    parser.add_argument('--save_dir', type=str, default='./training2/')
     args = parser.parse_args()
     prefix = args.save_dir
 
@@ -34,7 +35,7 @@ if __name__ == '__main__':
 
     cross_error = []
     intra_error = []
-    for i in range(4):
+    for i in range(2):
         print('Batch [{}/4]'.format(i + 1))
         eval(i, prefix)
 

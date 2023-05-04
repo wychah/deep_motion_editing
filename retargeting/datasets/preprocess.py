@@ -1,15 +1,15 @@
 import os
 import numpy as np
 import copy
-from datasets.bvh_parser import BVH_file
-from datasets.motion_dataset import MotionData
+from bvh_parser import BVH_file
+from motion_dataset import MotionData
 from option_parser import get_args, try_mkdir
 
 
 def collect_bvh(data_path, character, files):
     print('begin {}'.format(character))
     motions = []
-
+    # files 遍历一个角色的bvh全文件
     for i, motion in enumerate(files):
         if not os.path.exists(data_path + character + '/' + motion):
             continue

@@ -17,6 +17,7 @@ class MixedData0(Dataset):
         super(MixedData0, self).__init__()
 
         self.motions = motions
+        # 动作50%比例倒放
         self.motions_reverse = torch.tensor(self.motions.numpy()[..., ::-1].copy())
         self.skeleton_idx = skeleton_idx
         self.length = motions.shape[0]
@@ -49,12 +50,14 @@ class MixedData(Dataset):
         seed = 19260817
         total_length = 10000000
         all_datas = []
+        # 遍历 角色group[A,B]
         for datasets in datasets_groups:
             offsets_group = []
             means_group = []
             vars_group = []
             dataset_num += len(datasets)
             tmp = []
+            # 遍历角色groupA
             for i, dataset in enumerate(datasets):
                 new_args = copy.copy(args)
                 new_args.data_augment = 0
@@ -80,7 +83,7 @@ class MixedData(Dataset):
                 new_offset = torch.tensor(new_offset, dtype=torch.float)
                 new_offset = new_offset.reshape((1,) + new_offset.shape)
                 offsets_group.append(new_offset)
-
+                # total_length 没啥用啊？
                 total_length = min(total_length, len(tmp[-1]))
             all_datas.append(tmp)
             offsets_group = torch.cat(offsets_group, dim=0)
@@ -203,6 +206,7 @@ class TestData(Dataset):
         else:
             raise Exception('Wrong input file type')
         if not os.path.exists(file):
+            print(file)
             raise Exception('Cannot find file')
         file = BVH_file(file)
         motion = file.to_tensor(quater=self.args.rotation == 'quaternion')

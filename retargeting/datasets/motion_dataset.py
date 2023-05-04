@@ -27,11 +27,13 @@ class MotionData(Dataset):
         self.args = args
         self.data = []
         self.motion_length = []
+        # 读取动作数据
         motions = np.load(file_path, allow_pickle=True)
         motions = list(motions)
         new_windows = self.get_windows(motions)
         self.data.append(new_windows)
         self.data = torch.cat(self.data)
+        # n * 特征 * frame
         self.data = self.data.permute(0, 2, 1)
 
         if args.normalization == 1:
@@ -85,22 +87,24 @@ class MotionData(Dataset):
             for i in range(n_window):
                 begin = i * step_size
                 end = begin + window_size
-
+                # new:降采样并切片完的新数据
                 new = motion[begin:end, :]
                 if self.args.rotation == 'quaternion':
                     new = new.reshape(new.shape[0], -1, 3)
+                    # 最后一维是position
                     rotations = new[:, :-1, :]
                     rotations = Quaternions.from_euler(np.radians(rotations)).qs
                     rotations = rotations.reshape(rotations.shape[0], -1)
                     positions = new[:, -1, :]
                     positions = np.concatenate((new, np.zeros((new.shape[0], new.shape[1], 1))), axis=2)
+                    # rotation和quaternion都有，position在后面又给拼起来
                     new = np.concatenate((rotations, new[:, -1, :].reshape(new.shape[0], -1)), axis=1)
 
                 new = new[np.newaxis, ...]
-
+                # 没有quaternion就是1*frame*(28*3)
                 new_window = torch.tensor(new, dtype=torch.float32)
                 new_windows.append(new_window)
-
+        # n * frame * (28*3huo 27*7)
         return torch.cat(new_windows)
 
     def subsample(self, motion):
