@@ -21,6 +21,7 @@ def main():
         para_file.write(' '.join(sys.argv))
 
     dataset = create_dataset(args, characters)
+    print(len(dataset))
     data_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=2)
 
     model = create_model(args, characters, dataset)

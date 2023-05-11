@@ -58,7 +58,9 @@ class Encoder(nn.Module):
     def forward(self, input, offset=None):
         # padding the one zero row to global position, so each joint including global position has 4 channels as input
         if self.args.rotation == 'quaternion' and self.args.pos_repr != '4d':
+            # 这里input batch * []
             input = torch.cat((input, torch.zeros_like(input[:, [0], :])), dim=1)
+            print(input.size())
 
         for i, layer in enumerate(self.layers):
             if self.args.skeleton_info == 'concat' and offset is not None:

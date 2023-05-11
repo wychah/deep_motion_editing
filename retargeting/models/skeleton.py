@@ -287,6 +287,7 @@ def build_edge_topology(topology, offset):
     joint_num = len(topology)
     for i in range(1, joint_num):
         edges.append((topology[i], i, offset[i]))
+    # 一个元组list记录了所有的边（父亲节点，当前节点，offset），从第二个（序号1）开始遍历
     return edges
 
 

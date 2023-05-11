@@ -214,6 +214,7 @@ class BVH_file:
         if self._topology is None:
             self._topology = self.anim.parents[self.corps].copy()
             for i in range(self._topology.shape[0]):
+                # 你的父亲节点在简化后的序号
                 if i >= 1: self._topology[i] = self.simplify_map[self._topology[i]]
             self._topology = tuple(self._topology)
         return self._topology
@@ -231,14 +232,16 @@ class BVH_file:
         if edge:
             index = []
             for e in self.edges:
+                # 取出边中父亲节点的序号，可能有重复？是的有重复
                 index.append(e[0])
             rotations = rotations[:, index, :]
-
+        # frame * （关节*3）
         rotations = rotations.reshape(rotations.shape[0], -1)
-
+        # 自己处理自己拼 frame * （关节*3 + 根位置3维）如果关节筛选了23个则特征为（23 - 1）* 3 + 3
         return np.concatenate((rotations, positions), axis=1)
 
     def to_tensor(self, quater=False, edge=True):
+        # 默认不转四元数，都是三的倍数
         res = self.to_numpy(quater, edge)
         res = torch.tensor(res, dtype=torch.float)
         res = res.permute(1, 0)
@@ -259,6 +262,7 @@ class BVH_file:
         return self.simplified_name
 
     def get_height(self):
+        # 身高是写的脚骨骼长度到根加上头到根。每个骨骼长度相加
         offset = self.offset
         topo = self.topology
 
@@ -283,6 +287,7 @@ class BVH_file:
 
     def get_ee_length(self):
         if len(self.ee_length): return self.ee_length
+        # 简化后的topology序列长度
         degree = [0] * len(self.topology)
         for i in self.topology:
             if i < 0: continue
@@ -298,6 +303,7 @@ class BVH_file:
             self.ee_length.append(length)
 
         height = self.get_height()
+        # ee_name_1 = ['LeftToeBase', 'RightToeBase', 'Head', 'LeftHand', 'RightHand']
         ee_group = [[0, 1], [2], [3, 4]]
         for group in ee_group:
             maxv = 0

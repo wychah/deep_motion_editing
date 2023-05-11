@@ -14,6 +14,9 @@ def collect_bvh(data_path, character, files):
         if not os.path.exists(data_path + character + '/' + motion):
             continue
         file = BVH_file(data_path + character + '/' + motion)
+        # new_motion : frame * （（定义关节-1）*3 + 根位置3维）
+        # ps：因为取rotation的时候若定义了23个节点，会取每个节点的父亲节点序号
+        # 所以rotation也可能是重复的
         new_motion = file.to_tensor().permute((1, 0)).numpy()
         motions.append(new_motion)
 

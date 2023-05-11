@@ -57,8 +57,9 @@ class GAN_model(BaseModel):
                 self.writer.append(writer_group)
 
     def set_input(self, motions):
+        # 这里的motions是一个多拓朴的复合[]
         self.motions_input = motions
-
+        # 如果是测试
         if not self.is_train:
             self.motion_backup = []
             for i in range(self.n_topology):
@@ -93,6 +94,7 @@ class GAN_model(BaseModel):
 
         # reconstruct
         for i in range(self.n_topology):
+            # motions_input[i] = [[motion,topo],...] batch * [motion,topo]
             motion, offset_idx = self.motions_input[i]
             motion = motion.to(self.device)
             self.motions.append(motion)

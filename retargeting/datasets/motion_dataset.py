@@ -33,7 +33,7 @@ class MotionData(Dataset):
         new_windows = self.get_windows(motions)
         self.data.append(new_windows)
         self.data = torch.cat(self.data)
-        # n * 特征 * frame
+        # window_num*frame*特征 -> window_num*特征*frame
         self.data = self.data.permute(0, 2, 1)
 
         if args.normalization == 1:
@@ -70,6 +70,7 @@ class MotionData(Dataset):
     def __getitem__(self, item):
         if isinstance(item, int): item %= self.data.shape[0]
         if self.args.data_augment == 0 or np.random.randint(0, 2) == 0:
+            # 取第几个窗口
             return self.data[item]
         else:
             return self.data_reverse[item]
@@ -83,9 +84,11 @@ class MotionData(Dataset):
             self.motion_length.append(motion.shape[0])
             step_size = self.args.window_size // 2
             window_size = step_size * 2
+            # 一个动作能切成几个窗口
             n_window = motion.shape[0] // step_size - 1
             for i in range(n_window):
                 begin = i * step_size
+                # 切片越界不会报错
                 end = begin + window_size
                 # new:降采样并切片完的新数据
                 new = motion[begin:end, :]
@@ -95,16 +98,18 @@ class MotionData(Dataset):
                     rotations = new[:, :-1, :]
                     rotations = Quaternions.from_euler(np.radians(rotations)).qs
                     rotations = rotations.reshape(rotations.shape[0], -1)
+                    # position干嘛用，在三维角和根位移最后面加了一个0
                     positions = new[:, -1, :]
                     positions = np.concatenate((new, np.zeros((new.shape[0], new.shape[1], 1))), axis=2)
-                    # rotation和quaternion都有，position在后面又给拼起来
+                    # rotation和quaternion都有，position在后面又给拼起来，最后是Window * （关节（关节-1）*4 + 3）
+                    # （由于变npy的时候关节少了一个，其实是关节-1）
                     new = np.concatenate((rotations, new[:, -1, :].reshape(new.shape[0], -1)), axis=1)
 
                 new = new[np.newaxis, ...]
                 # 没有quaternion就是1*frame*(28*3)
                 new_window = torch.tensor(new, dtype=torch.float32)
                 new_windows.append(new_window)
-        # n * frame * (28*3huo 27*7)
+        # 窗口个数 * 窗口有几帧 * (特征)
         return torch.cat(new_windows)
 
     def subsample(self, motion):

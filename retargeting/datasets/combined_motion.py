@@ -28,6 +28,7 @@ class MixedData0(Dataset):
 
     def __getitem__(self, item):
         if self.args.data_augment == 0 or torch.rand(1) < 0.5:
+            # [第item个窗口， ]
             return [self.motions[item], self.skeleton_idx[item]]
         else:
             return [self.motions_reverse[item], self.skeleton_idx[item]]
@@ -93,20 +94,23 @@ class MixedData(Dataset):
             self.offsets.append(offsets_group)
             self.means.append(means_group)
             self.vars.append(vars_group)
-
+        # 这段代码和shit一样tm的啥意思啊
         for datasets in all_datas:
             pt = 0
             motions = []
             skeleton_idx = []
             for dataset in datasets:
+                # 取出该motiondata中的所有数据，合并成motions，包含 同拓扑的所有窗口
                 motions.append(dataset[:])
                 skeleton_idx += [pt] * len(dataset)
                 pt += 1
             motions = torch.cat(motions, dim=0)
+            # 窗口个数是所有拓扑中的最小值，青瞳和metahuman多的没用上
             if self.length != 0 and self.length != len(skeleton_idx):
                 self.length = min(self.length, len(skeleton_idx))
             else:
                 self.length = len(skeleton_idx)
+            # 同拓扑的动作合成一个dataset，整合成[窗口，skeleton_idx]
             self.final_data.append(MixedData0(args, motions, skeleton_idx))
 
     def denorm(self, gid, pid, data):
@@ -121,6 +125,8 @@ class MixedData(Dataset):
         res = []
         for data in self.final_data:
             res.append(data[item])
+        # [[topo1],[topo2],[topo3],[topo4]]
+        # topo1 = [self.motions[item], self.skeleton_idx[item]]
         return res
 
 
